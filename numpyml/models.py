@@ -1,5 +1,5 @@
-from module import Module
-from linear import Linear
+from numpyml.module import Module
+from numpyml.linear import Linear
 
 class MLP(Module):
     def __init__(self, layer_sizes, activation='tanh'):

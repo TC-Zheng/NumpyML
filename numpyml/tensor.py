@@ -4,8 +4,10 @@ import numpy as np
 class Tensor:
     def __init__(self, data, requires_grad=False, _children=(), _operation=''):
         self.data = np.array(data)
+        self.shape = self.data.shape
+        self.dtype = self.data.dtype
         # _prev consists of previous tensors that are used to compute the current tensor
-        self._prev = set(_children)
+        self._prev = _children
         # _operation is the operation that was used to compute the current tensor
         self._operation = _operation
         # default gradient is 0
@@ -16,10 +18,14 @@ class Tensor:
     def __repr__(self):
         return f"Tensor({self.data})"
     
+    
     def backward(self):
+        # Backward shouldn't be called on a tensor that doesn't require gradients
+        if self.grad is None:
+            raise ValueError("Backward shouldn't be called on a tensor that doesn't require gradients.")
         # Ensure that the current tensor is a scalar
         if np.size(self.data) != 1:
-            raise ValueError("backward can only be called on a scalar tensor.")
+            raise ValueError("Backward should only be called on a scalar tensor.")
         # Topological sort
         topo = []
         visited = set()
@@ -34,29 +40,71 @@ class Tensor:
         self.grad = np.ones_like(self.data)
         for tensor in reversed(topo):
             tensor._backward()
+            
+    def __eq__(self, other):
+        if isinstance(other, Tensor):
+            return Tensor(self.data == other.data)
+        return False
+
+    def __hash__(self):
+        return hash(self.data.tobytes())
     
     def __add__(self, other):
-        requires_grad = self.grad is not None and other.grad is not None
+        """Adds two tensors entrywise. The resulting tensor requires gradient computation 
+    if either of the input tensors does. During the backward pass, gradients 
+    are propagated to input tensors that require gradients and not propagated 
+    to those that do not.
+        """
+        requires_grad = self.grad is not None or other.grad is not None
         out = Tensor(self.data + other.data, requires_grad, (self, other), '+')
         def _backward():
             # The gradient simply passes through for addition
-            self.grad += out.grad
-            other.grad += out.grad
+            if self.grad is not None:
+                self.grad += out.grad
+            if other.grad is not None:
+                other.grad += out.grad
         out._backward = _backward
         return out
     
     def __mul__(self, other):
-        requires_grad = self.grad is not None and other.grad is not None
+        """Multiplies two tensors entrywise. The resulting tensor requires gradient computation 
+    if either of the input tensors does. During the backward pass, gradients 
+    are propagated to input tensors that require gradients and not propagated 
+    to those that do not.
+        """
+        requires_grad = self.grad is not None or other.grad is not None
         out = Tensor(self.data * other.data, requires_grad, (self, other), '*')
         def _backward():
             # Derivative for multiplication
-            self.grad += other.data * out.grad
-            other.grad += self.data * out.grad
+            if self.grad is not None:
+                self.grad += other.data * out.grad
+            if other.grad is not None:
+                other.grad += self.data * out.grad
+        out._backward = _backward
+        return out
+    
+    def __sub__(self, other):
+        """Subtracts two tensors entrywise. The resulting tensor requires gradient computation
+    if either of the input tensors does. During the backward pass, gradients
+    are propagated to input tensors that require gradients and not propagated
+    to those that do not.
+        """
+        # Subtraction is just addition with the second tensor negated
+        requires_grad = self.grad is not None or other.grad is not None
+        out = Tensor(self.data - other.data, requires_grad, (self, other), '-')
+        def _backward():
+            if self.grad is not None:
+                self.grad += out.grad
+            if other.grad is not None:
+                other.grad -= out.grad
         out._backward = _backward
         return out
     
     def __matmul__(self, other):
-
+        """Multiplies two tensors using matrix multiplication. The resulting tensor requires
+    gradient computation if either of the input tensors does. During the backward pass,
+    gradients are propagated to input tensors that require gradients and not propagated
+    to those that do not."""
         requires_grad = self.grad is not None or other.grad is not None
         out = Tensor(self.data @ other.data, requires_grad, (self, other), '@')
         def _backward():
@@ -69,6 +117,7 @@ class Tensor:
         return out
 
     def tanh(self):
+        """Hyperbolic tangent function."""
         requires_grad = self.grad is not None
         out = Tensor(np.tanh(self.data), requires_grad, (self,), 'tanh')
         def _backward():
@@ -145,3 +194,9 @@ class Tensor:
         if len(size) == 1 and isinstance(size[0], (tuple, list)):
             size = size[0]
         return Tensor(np.random.randn(*size), requires_grad=requires_grad)
+
+# main function, simple test case
+if __name__ == '__main__':
+    t = Tensor([1, 2, 3, 4, 5])
+    print(t.shape)
+    print(t.dtype)

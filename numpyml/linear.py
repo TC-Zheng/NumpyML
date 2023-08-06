@@ -1,5 +1,5 @@
-from module import Module
-import functional as F
+from numpyml.module import Module
+import numpyml.functional as F
 
 class Linear(Module):
     def __init__(self, fan_in, fan_out, activation='tanh'):
