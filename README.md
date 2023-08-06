@@ -1,3 +1,4 @@
+![Python application test with pytest](https://github.com/TC-Zheng/NumpyML/actions/workflows/main.yml/badge.svg)
 [![codecov](https://codecov.io/gh/TC-Zheng/NumpyML/branch/main/graph/badge.svg?token=J21A1SE7T9)](https://codecov.io/gh/TC-Zheng/NumpyML)
 # NumpyML
 Building the foundations of machine learning from scratch using only numpy.
