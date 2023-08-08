@@ -8,6 +8,9 @@ class Linear(Module):
         
     def forward(self, input):
         return input @ self.weights + self.bias
+    
+    def parameters(self):
+        return [self.weights, self.bias]
 
 
 class Tanh(Module):
@@ -16,3 +19,6 @@ class Tanh(Module):
     
     def forward(self, x):
         return x.tanh()
+    
+    def parameters(self):
+        return []
