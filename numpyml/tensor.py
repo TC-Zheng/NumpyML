@@ -60,9 +60,9 @@ class Tensor:
         def _backward():
             # The gradient simply passes through for addition
             if self.grad is not None:
-                self.grad += out.grad
+                self.grad = self.grad + out.grad
             if other.grad is not None:
-                other.grad += out.grad
+                other.grad = other.grad + out.grad
         out._backward = _backward
         return out
     
@@ -77,9 +77,9 @@ class Tensor:
         def _backward():
             # Derivative for multiplication
             if self.grad is not None:
-                self.grad += other.data * out.grad
+                self.grad = self.grad + other.data * out.grad
             if other.grad is not None:
-                other.grad += self.data * out.grad
+                other.grad = other.grad + self.data * out.grad
         out._backward = _backward
         return out
     
@@ -94,9 +94,9 @@ class Tensor:
         out = Tensor(self.data - other.data, requires_grad, (self, other), '-')
         def _backward():
             if self.grad is not None:
-                self.grad += out.grad
+                self.grad = self.grad + out.grad
             if other.grad is not None:
-                other.grad -= out.grad
+                other.grad = other.grad - out.grad
         out._backward = _backward
         return out
     
@@ -110,9 +110,9 @@ class Tensor:
         def _backward():
             # Gradients for matrix multiplication
             if self.grad is not None:
-                self.grad += out.grad @ other.data.T
+                self.grad = self.grad + out.grad @ other.data.T
             if other.grad is not None:
-                other.grad += self.data.T @ out.grad
+                other.grad = other.grad + self.data.T @ out.grad
         out._backward = _backward
         return out
 
@@ -191,6 +191,7 @@ class Tensor:
         return out
     
     def randn(*size, requires_grad=False):
-        if len(size) == 1 and isinstance(size[0], (tuple, list)):
-            size = size[0]
-        return Tensor(np.random.randn(*size), requires_grad=requires_grad)
+        if len(size) == 1:
+            return Tensor(np.random.randn(size[0]), requires_grad=requires_grad)
+        else:
+            return Tensor(np.random.randn(*size), requires_grad=requires_grad)

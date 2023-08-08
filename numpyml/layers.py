@@ -10,6 +10,9 @@ class Linear(Module):
         return input @ self.weights + self.bias
 
 
-class Tanh:
+class Tanh(Module):
+    def __init__(self):
+        pass
+    
     def forward(self, x):
         return x.tanh()

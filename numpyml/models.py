@@ -1,5 +1,4 @@
 from numpyml.module import Module
-from numpyml.layers import Linear
 
 
 class Sequential(Module):
