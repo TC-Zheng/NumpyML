@@ -194,9 +194,3 @@ class Tensor:
         if len(size) == 1 and isinstance(size[0], (tuple, list)):
             size = size[0]
         return Tensor(np.random.randn(*size), requires_grad=requires_grad)
-
-# main function, simple test case
-if __name__ == '__main__':
-    t = Tensor([1, 2, 3, 4, 5])
-    print(t.shape)
-    print(t.dtype)
