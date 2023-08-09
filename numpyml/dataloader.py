@@ -1,4 +1,5 @@
 import numpy as np
+from numpyml import Tensor
 
 class DataLoader:
     def __init__(self, dataset, batch_size=32, shuffle=False):

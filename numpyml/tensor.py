@@ -3,11 +3,7 @@ import numpy as np
 
 class Tensor:
     def __init__(self, data, requires_grad=False, _children=(), _operation=''):
-        # If data is already a Tensor, then unwrap it.
-        if isinstance(data, Tensor):
-            self.data = data.data
-        else:
-            self.data = np.array(data)
+        self.data = np.array(data)
         self.shape = self.data.shape
         self.dtype = self.data.dtype
         # _prev consists of previous tensors that are used to compute the current tensor
@@ -24,6 +20,9 @@ class Tensor:
     
     def __getitem__(self, idx):
         return Tensor(self.data[idx])
+    
+    def __array__(self):
+        return self.data
     
     def backward(self):
         # Backward shouldn't be called on a tensor that doesn't require gradients
@@ -116,9 +115,9 @@ class Tensor:
         def _backward():
             # Gradients for matrix multiplication
             if self.grad is not None:
-                self.grad = self.grad + out.grad @ other.data.T
+                self.grad += out.grad @ other.data.T
             if other.grad is not None:
-                other.grad = other.grad + self.data.T @ out.grad
+                other.grad += self.data.T @ out.grad
         out._backward = _backward
         return out
 

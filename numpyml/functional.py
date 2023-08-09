@@ -19,3 +19,6 @@ def one_hot(target, num_classes):
     # Using advanced indexing to fill in the one-hot matrix
     one_hot[np.arange(target.shape[0]), target] = 1
     return Tensor(one_hot)
+
+def zeros(*size, requires_grad=False):
+    return Tensor(np.zeros(*size), requires_grad=requires_grad)

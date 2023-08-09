@@ -1,11 +1,13 @@
+from numpyml import Tensor
+import numpy as np
 
 class Dataset:
     def __init__(self, data, labels):
+        # Make sure data and labels have the same length
+        if data.shape[0] != labels.shape[0]:
+            raise ValueError("Data and labels must have the same length")
         self.data = data
         self.labels = labels
-        # Make sure data and labels have the same length
-        if self.data.shape[0] != self.labels.shape[0]:
-            raise ValueError("Data and labels must have the same length")
 
     def __len__(self):
         return self.data.shape[0]
