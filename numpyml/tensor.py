@@ -3,7 +3,11 @@ import numpy as np
 
 class Tensor:
     def __init__(self, data, requires_grad=False, _children=(), _operation=''):
-        self.data = np.array(data)
+        # If data is already a Tensor, then unwrap it.
+        if isinstance(data, Tensor):
+            self.data = data.data
+        else:
+            self.data = np.array(data)
         self.shape = self.data.shape
         self.dtype = self.data.dtype
         # _prev consists of previous tensors that are used to compute the current tensor
@@ -18,6 +22,8 @@ class Tensor:
     def __repr__(self):
         return f"Tensor({self.data})"
     
+    def __getitem__(self, idx):
+        return Tensor(self.data[idx])
     
     def backward(self):
         # Backward shouldn't be called on a tensor that doesn't require gradients
