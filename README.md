@@ -57,5 +57,8 @@ Examining the figure below, it's evident that while my implementation may not ex
 In the future, more complex datasets and tasks will be tackled to further test the library's versatility.
 ![Project Image](examples/Figure_1.png)
 
+# Contributions
+[MNIST Dataset](https://www.kaggle.com/datasets/hojjatk/mnist-dataset) The dataset and datareader used for MNIST example is downloaded from this site.
+
 # Liscense
 The content of this project is licensed under the [MIT License](LICENSE).
