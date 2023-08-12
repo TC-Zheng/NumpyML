@@ -8,6 +8,38 @@ from matplotlib import pyplot as plt
 from numpyml.dataset import Dataset
 from numpyml.dataloader import DataLoader
 from numpyml.optimizers import SGD
+import matplotlib.pyplot as plt
+
+def plot_metrics(train_loss, val_loss, train_acc, val_acc):
+    epochs = range(1, len(train_loss) + 1)
+
+    # Plotting the training and validation loss
+    plt.figure(figsize=(12, 5))
+
+    plt.subplot(1, 2, 1)  # 1 row, 2 columns, 1st subplot = left
+    plt.plot(epochs, train_loss, 'bo', label='Training loss')
+    plt.plot(epochs, val_loss, 'b', label='test loss')
+    plt.title('Training and test Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    # Plotting the training and validation accuracy
+    plt.subplot(1, 2, 2)  # 1 row, 2 columns, 2nd subplot = right
+    plt.plot(epochs, train_acc, 'bo', label='Training acc')
+    plt.plot(epochs, val_acc, 'b', label='test acc')
+    plt.title('Training and test Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+    
+train_loss = []
+test_loss = []
+train_acc = []
+test_acc = []
 
 # Load MINST dataset
 mnist_dataloader = MnistDataloader()
@@ -45,12 +77,20 @@ for epoch in range(num_epochs):
         optimizer.step()
         # Zero out the gradients
         optimizer.zero_grad()
-    print('Epoch: {}, Loss: {:.4f}'.format(epoch, loss.data))
     
-
-# Test the accuracy of the model against the test dataset
-test_logits = model(Tensor(x_test))
-predictions = np.argmax(test_logits.data, axis=1)
-accuracy = np.mean(predictions == y_test)
-print('Test set accuracy: {:.2f}%'.format(accuracy * 100))
-        
+    print('Epoch: {}, Loss: {:.4f}'.format(epoch, loss.data))
+    # Compute the training accuracy
+    tr_pred = np.argmax(logits.data, axis=1)
+    tr_acc = np.mean(tr_pred == batch_y)
+    train_acc.append(tr_acc)
+    train_loss.append(loss.data)
+    # Test the accuracy of the model against the test dataset
+    test_logits = model(Tensor(x_test))
+    test_loss.append(F.cross_entropy(test_logits, Tensor(y_test)).data)
+    predictions = np.argmax(test_logits.data, axis=1)
+    accuracy = np.mean(predictions == y_test)
+    test_acc.append(accuracy)
+    print('Test set accuracy: {:.2f}%'.format(accuracy * 100))
+    
+# Plot the training and test loss
+plot_metrics(train_loss, test_loss, train_acc, test_acc)
